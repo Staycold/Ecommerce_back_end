@@ -9,11 +9,11 @@ router.get('/',async (req, res) => {
   // be sure to include its associated Category and Tag data
   try{
     const productData = await Product.findAll( {
-      include: [Category,{model: Tag,through:ProductTag}]
+      include: [{model: Category},{model: Tag,through:ProductTag}]
     });
     if(!productData) {
       res.status(404).json({message: 'No Product matches your search!'});
-      return;
+     
     }
     res.status(200).json(productData);
   } catch (err) {
@@ -27,13 +27,14 @@ router.get('/:id',async (req, res) => {
   // be sure to include its associated Category and Tag data
   try{
     const productData = await Product.findByPK(req.params.id, {
-      include: [{model: Category, Tag}]
+      include: [{model: Category},{model: Tag}]
     });
     if(!productData) {
       res.status(404).json({message: 'No Product matches your search!'});
-      return;
-    }
+      
+    } else{
     res.status(200).json(productData);
+    }
   }catch (err) {
     res.status(500).json(err);
   }
@@ -49,17 +50,17 @@ router.post('/',async (req, res) => {
       tagIds: [1, 2, 3, 4]
     }
   */
-    try {
-      const productData = await Product.create({
-        product_name: req.body.product_name,
-        price: req.body.price,
-        stock: req.body.stock,
-        tagIds: req.body.tagIds
-      });
-      res.status(200).json(productData);
-    } catch (err) {
-      res.status(400).json(err);
-    }
+    // try {
+    //   const productData = await Product.create({
+    //     product_name: req.body.product_name,
+    //     price: req.body.price,
+    //     stock: req.body.stock,
+    //     tagIds: req.body.tagIds
+    //   });
+    //   res.status(200).json(productData);
+    // } catch (err) {
+    //   res.status(400).json(err);
+    // }
   Product.create(req.body)
     .then((product) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
@@ -127,7 +128,7 @@ router.put('/:id',async  (req, res) => {
 router.delete('/:id',async  (req, res) => {
   // delete one product by its `id` 
   try {
-    const productData = await Product.update(req.body, {
+    const productData = await Product.destroy(req.body, {
       where: {
         id: req.params.id,
       },
